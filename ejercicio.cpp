@@ -24,7 +24,7 @@ void load_script(const char* filename, bool show_script = false)
 
     if (!file.is_open())
     {
-        cerr << "Error al abrir archivo '" << filename << "'" << endl;
+        cerr << "Error: No se pudo abrir el archivo '" << filename << "'." << endl;
         return;
     }
 
@@ -49,9 +49,14 @@ void load_script(const char* filename, bool show_script = false)
         consoleBox->new_text();
         consoleBox->set_text(script);
     }
+    catch (const ifstream::failure &e)
+    {
+        cerr << "Error de lectura del archivo: " << e.what() << endl;
+        file.close();
+    }
     catch (const exception &e)
     {
-        cerr << "Error durante la lectura del archivo: " << e.what() << endl;
+        cerr << "Error general: " << e.what() << endl;
         file.close();
     }
 }
@@ -68,8 +73,15 @@ void load_script()
 
 int main()
 {
-    load_script(); // Solicitará al usuario el nombre del archivo y mostrará su contenido
-    // También puedes llamar load_script("nombre_del_archivo.txt", true); directamente con un nombre de archivo específico
+    try
+    {
+        load_script(); // Solicitará al usuario el nombre del archivo y mostrará su contenido
+        // También puedes llamar load_script("nombre_del_archivo.txt", true); directamente con un nombre de archivo específico
+    }
+    catch (const exception &e)
+    {
+        cerr << "Error general: " << e.what() << endl;
+    }
 
     return 0;
 }
