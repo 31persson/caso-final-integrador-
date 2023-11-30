@@ -1,6 +1,6 @@
 #include <iostream>
+#include <fstream>
 #include <string>
-#include <cstdio>
 
 using namespace std;
 
@@ -16,53 +16,60 @@ struct ConsoleBox
     void set_text(const string &text) { cout << text << endl; }
 };
 
-ConsoleBox *consoleBox = new ConsoleBox; // suponemos que ya está inicializado
+ConsoleBox *consoleBox = new ConsoleBox; // Suponemos que ya está inicializado
 
 void load_script(const char* filename, bool show_script = false)
 {
-    string script;
-    FILE* f = nullptr;
+    ifstream file(filename);
+
+    if (!file.is_open())
+    {
+        cerr << "Error al abrir archivo '" << filename << "'" << endl;
+        return;
+    }
+
     try
     {
-        f = fopen(filename, "rb");
-        if (!f)
+        string script;
+        string line;
+
+        while (getline(file, line))
         {
-            cerr << "error de apertura de " << filename << endl;
-            return;
+            script += line + "\n";
         }
 
-        int c;
-        char buf[4001];
-        while ((c = fread(buf, 1, 4000, f)) > 0)
-        {
-            buf[c] = 0;
-            script.append(buf);
-        }
-        fclose(f);
-        f = nullptr;
+        file.close();
 
         if (show_script)
         {
             cout << ColorConsole::fg_blue << ColorConsole::bg_white;
             cout << script << endl;
         }
+
         consoleBox->new_text();
         consoleBox->set_text(script);
     }
-    catch (...)
+    catch (const exception &e)
     {
-        cerr << "error durante la lectura del archivo" << endl;
-        if(f)
-            fclose(f);
+        cerr << "Error durante la lectura del archivo: " << e.what() << endl;
+        file.close();
     }
+}
+
+void load_script()
+{
+    string filename;
+
+    cout << "Ingrese el nombre del archivo: ";
+    cin >> filename;
+
+    load_script(filename.c_str(), true);
 }
 
 int main()
 {
-    char filename[500];
-    printf("Archivo: ");
-    scanf("%499s", filename);
-    load_script(filename, true);
+    load_script(); // Solicitará al usuario el nombre del archivo y mostrará su contenido
+    // También puedes llamar load_script("nombre_del_archivo.txt", true); directamente con un nombre de archivo específico
 
     return 0;
 }
