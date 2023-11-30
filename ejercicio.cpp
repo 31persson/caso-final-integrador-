@@ -57,10 +57,12 @@ void load_script(const char* filename, bool show_script = false)
     }
 }
 
-void load_script()
+int main()
 {
     char filename[500];
     printf("Archivo: ");
     scanf("%499s", filename);
     load_script(filename, true);
+
+    return 0;
 }
