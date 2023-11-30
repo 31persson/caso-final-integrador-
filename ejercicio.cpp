@@ -1,6 +1,6 @@
 #include <iostream>
-#include <fstream>
 #include <string>
+#include <cstdio>
 
 using namespace std;
 
@@ -16,60 +16,51 @@ struct ConsoleBox
     void set_text(const string &text) { cout << text << endl; }
 };
 
-ConsoleBox *consoleBox = new ConsoleBox; // Suponemos que ya está inicializado
+ConsoleBox *consoleBox = new ConsoleBox; // suponemos que ya está inicializado
 
 void load_script(const char* filename, bool show_script = false)
 {
-    ifstream file(filename);
-
-    if (!file.is_open())
-    {
-        cerr << "Error: El archivo '" << filename << "' no existe." << endl;
-        return;
-    }
-
+    string script;
+    FILE* f = nullptr;
     try
     {
-        string script;
-        string line;
-
-        while (getline(file, line))
+        f = fopen(filename, "rb");
+        if (!f)
         {
-            script += line + "\n";
+            cerr << "error de apertura de " << filename << endl;
+            return;
         }
 
-        file.close();
+        int c;
+        char buf[4001];
+        while ((c = fread(buf, 1, 4000, f)) > 0)
+        {
+            buf[c] = 0;
+            script.append(buf);
+        }
+        fclose(f);
+        f = nullptr;
 
         if (show_script)
         {
             cout << ColorConsole::fg_blue << ColorConsole::bg_white;
             cout << script << endl;
         }
-
         consoleBox->new_text();
         consoleBox->set_text(script);
     }
-    catch (const exception &e)
+    catch (...)
     {
-        cerr << "Error durante la lectura del archivo: " << e.what() << endl;
-        file.close();
+        cerr << "error durante la lectura del archivo" << endl;
+        if(f)
+            fclose(f);
     }
 }
 
 void load_script()
 {
-    string filename;
-
-    cout << "Ingrese el nombre del archivo: ";
-    cin >> filename;
-
-    load_script(filename.c_str(), true);
-}
-
-int main()
-{
-    load_script(); // Solicitará al usuario el nombre del archivo y mostrará su contenido
-    // También puedes llamar load_script("nombre_del_archivo.txt", true); directamente con un nombre de archivo específico
-
-    return 0;
+    char filename[500];
+    printf("Archivo: ");
+    scanf("%499s", filename);
+    load_script(filename, true);
 }
