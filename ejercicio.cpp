@@ -24,7 +24,7 @@ void load_script(const char* filename, bool show_script = false)
 
     if (!file.is_open())
     {
-        cerr << "Error al abrir el archivo: " << filename << endl;
+        cerr << "Error: El archivo '" << filename << "' no existe." << endl;
         return;
     }
 
